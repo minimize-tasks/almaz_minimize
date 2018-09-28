@@ -5,10 +5,10 @@ from numpy import float64
 from scipy import special as scs
 import scipy.constants as scc
 
-from phased.misc import pow2db, db2pow, systemp, db2mag
-from phased.misc import FluctuationModel
-from phased.misc import PulseIntegration, MagnitudeUnit, mag2db
-from phased.misc import marcumq
+from misc import pow2db, db2pow, systemp, db2mag
+from misc import FluctuationModel
+from misc import PulseIntegration, MagnitudeUnit, mag2db
+from misc import marcumq
 
 EARTH_RADIUS = 6378000
 
