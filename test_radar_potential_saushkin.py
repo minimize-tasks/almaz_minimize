@@ -3,7 +3,7 @@
 import unittest
 import numpy as np
 
-import phased.radar_potential_saushkin as rpt_suashkin
+import radar_potential_saushkin as rpt_suashkin
 
 
 class PotentialSauskinTest(unittest.TestCase):
