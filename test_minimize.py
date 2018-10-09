@@ -8,27 +8,29 @@ import radar_potential_saushkin as rpt_saushkin
 
 def wrap_(func, minimize_args, func_result, init_values_dict=None, args_bounds=None):
     """"""
-    funccc = wrapper_for_minimization(func, minimize_args, func_result, init_values_dict,
-                                      args_bounds)
+    funccc = wrapper_for_minimization(func, minimize_args, func_result, init_values_dict)
+
+    if args_bounds is None:
+        args_bounds = len(minimize_args) * ((1e-8, 1e6),)
+
     for _ in range(1000):
-        result = minimize(funccc, 1e6*np.random.randn(len(minimize_args)), tol=1e-5,
+        result = minimize(funccc, 1e0*np.random.rand(len(minimize_args)), tol=1e-1,
                           bounds=args_bounds)
-        if result.success and result.fun < 1:
-            print(_)
+        if result.success and np.allclose(result.fun + func_result, func_result, rtol=0.001):
+            print(_, result.fun)
             return result.x
 
 
-def wrapper_for_minimization(func, minimize_args, func_result, init_values_dict=None,
-                             args_bounds=None):
+def wrapper_for_minimization(func, minimize_args, func_result, init_values_dict=None):
     """"""
     if init_values_dict is None:
         init_values_dict = dict()
-    if args_bounds is None:
-        args_bounds = len(minimize_args) * ((1e-8, 1e6),)
-    funccc = lambda args: abs(
+
+    funccc = lambda args: np.power(
         func_result - func(
             **dict(zip(minimize_args, args)),
-            **init_values_dict))
+            **init_values_dict),
+        2)
     return funccc
 
 
