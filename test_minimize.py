@@ -6,30 +6,40 @@ import numpy as np
 import radar_potential_saushkin as rpt_saushkin
 
 
-def wrap_(func, minimize_args, func_result, init_values_dict=None, args_bounds=None):
-    """"""
-    funccc = wrapper_for_minimization(func, minimize_args, func_result, init_values_dict)
+def wrap_(funcs, variable_parameters, y_values, fixed_x_dict, bounds=None):
+    """
 
-    if args_bounds is None:
-        args_bounds = len(minimize_args) * ((1e-8, 1e6),)
+    Args:
+        funcs (list(func, )): List with functions.
+        variable_parameters  (list(list, )): List with names varible parameters.
+        y_values  (list(floats, )): List with 'y' values.
+        fixed_x_dict  (list(dict, )): Dict with init parameters ({'x':1, 'xx':2})
+        bounds  (list(tuple, )|None):  Bounds.
+
+    Returns (list(dict, )|None):
+
+    """
+    func_ = wrapper_for_minimization(funcs[0], variable_parameters[0],
+                                     y_values[0], fixed_x_dict[0])
+
+    if bounds is None:
+        bounds = len(variable_parameters[0]) * ((0, None),)
 
     for _ in range(1000):
-        result = minimize(funccc, 1e0*np.random.rand(len(minimize_args)), tol=1e-1,
-                          bounds=args_bounds)
-        if result.success and np.allclose(result.fun + func_result, func_result, rtol=0.001):
+        result = minimize(func_, 1e0 * np.random.rand(len(variable_parameters[0])), tol=1e-1,
+                          bounds=bounds[0])
+        if result.success and np.allclose(result.fun + y_values, y_values, rtol=0.001):
             print(_, result.fun)
-            return result.x
+            return dict(zip(variable_parameters[0], result.x))
 
 
-def wrapper_for_minimization(func, minimize_args, func_result, init_values_dict=None):
+def wrapper_for_minimization(func, variable_parameters, y_values, fixed_x_dict):
     """"""
-    if init_values_dict is None:
-        init_values_dict = dict()
 
     funccc = lambda args: np.power(
-        func_result - func(
-            **dict(zip(minimize_args, args)),
-            **init_values_dict),
+        y_values - func(
+            **dict(zip(variable_parameters, args)),
+            **fixed_x_dict),
         2)
     return funccc
 
@@ -49,11 +59,10 @@ class MyTest(TestCase):
         minimize_args = ("wavelength", "gain_db")
 
 
-        wrap_result = wrap_(func, minimize_args, func_result=func_result,
-                            init_values_dict=new_fixed_values)
+        wrap_result = wrap_([func, ], [minimize_args, ], y_values=[func_result, ],
+                            fixed_x_dict=[new_fixed_values, ], bounds=[[(0, 2), (20, 40)], ])
         if wrap_result is not None:
-            minimize_args_dict = dict(zip(minimize_args, wrap_result))
 
-            func_result3 = func(**new_fixed_values, **minimize_args_dict)
+            func_result3 = func(**new_fixed_values, **wrap_result)
             print(func_result, 'optimization_res= ', func_result3)
         print(wrap_result)

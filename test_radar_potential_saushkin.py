@@ -27,7 +27,7 @@ class PotentialSauskinTest(unittest.TestCase):
                          "Potential in dB = {}".format(potential_db))
 
     def test_real_potential_rls(self):
-        potential_db = rpt_suashkin.real_potential_rls(1e5, 20, 0.3, 0, 1, 5e-16)
+        potential_db = rpt_suashkin.real_potential_rls(1e5, 20, 0.3, 0, 5e-16, 1)
         # TODO. Random equals
         np.testing.assert_allclose(potential_db, 199.5764291303)
 

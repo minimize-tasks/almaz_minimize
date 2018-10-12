@@ -90,7 +90,7 @@ def potential_rls(distance, rcs, ro):
     return pow2db(np.power(distance, 4) * ro / rcs)
 
 
-def real_potential_rls(pt, gain_db, wavelength, loss_db, F, p_min):
+def real_potential_rls(pt, gain_db, wavelength, loss_db, p_min, F=1):
     """(6)
 
     Args:
