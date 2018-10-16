@@ -26,8 +26,8 @@ def wrap_(funcs, variable_parameters, y_values, fixed_x_dict, bounds=None):
         bounds = len(variable_parameters[0]) * ((0, None),)
     cons = []
     for i in range(len(bounds[0])):
-        cons = cons + [lambda x: x[i] - bounds[0][i][0]]
-        cons = cons + [lambda x: -x[i] + bounds[0][i][1]]
+        cons = cons + [lambda x, i_local=i: x[i_local] - bounds[0][i_local][0]]
+        cons = cons + [lambda x, i_local=i: -x[i_local] + bounds[0][i_local][1]]
     for _ in range(1000):
         result = fmin_cobyla(func_, 1e0 * np.random.rand(len(variable_parameters[0])), cons=cons)
         return dict(zip(variable_parameters[0], result))
