@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+
 from scipy.optimize import fmin_cobyla
 import numpy as np
 
