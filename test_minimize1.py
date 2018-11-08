@@ -20,30 +20,44 @@ def wrap_(funcs, variable_parameters, y_values, fixed_x_dict, bounds=None):
     Returns (list(dict, )|None):
 
     """
-    func_ = wrapper_for_minimization(funcs, variable_parameters,
-                                     y_values, fixed_x_dict)
+    list_var = list()
+    boundsss = list()
+    for i in range(len(variable_parameters)):
+        for j in range(len(variable_parameters[i])):
+            if(list_var.count(variable_parameters[i][j]) == 0):
+                list_var.append(variable_parameters[i][j])
+                boundsss.append(list(bounds[i][j]))
+            for k in range(len(list_var)):
+                if(list_var[k] == variable_parameters[i][j]):
+                    if(boundsss[k][0] < bounds[i][j][0]):
+                        boundsss[k][0] = bounds[i][j][0]
+                    if(boundsss[k][1] > bounds[i][j][1]):
+                        boundsss[k][1] = bounds[i][j][1]
 
-    if bounds is None:
-        bounds = len(variable_parameters[0]) * ((0, None),)
+    func_ = wrapper_for_minimization(funcs, variable_parameters,
+                                     y_values, fixed_x_dict, list_var)
+
     cons = []
-    for i in range(len(bounds[0])):
-        cons = cons + [lambda x, i_local=i: x[i_local] - bounds[0][i_local][0]]
-        cons = cons + [lambda x, i_local=i: -x[i_local] + bounds[0][i_local][1]]
+    for i in range(len(boundsss)):
+        cons = cons + [lambda x, i_local=i: x[i_local] - boundsss[i_local][0]]
+        cons = cons + [lambda x, i_local=i: -x[i_local] + boundsss[i_local][1]]
     for _ in range(1000):
         result = fmin_cobyla(func_, 1e0 * np.random.rand(len(variable_parameters[0])), cons=cons)#, rhoend=1)
         return dict(zip(variable_parameters[0], result))
 
-def func1(args,funcs, variable_parameters, y_values, fixed_x_dict):
+def func1(args,funcs, variable_parameters, y_values, fixed_x_dict, list_var):
     arr = np.zeros(len(funcs))
     for i in range(len(funcs)):
-        arr[i] = np.power(y_values[i] - funcs[i](**dict(zip(variable_parameters[i], args)),**fixed_x_dict[i]),2)
+        arg = dict()
+        for j in range(len(list_var)):
+            for k in range(len(variable_parameters[i])):
+                if(list_var[j] == variable_parameters[i][k]):
+                    arg.update({list_var[j] : args[j]})
+        arr[i] = np.power(y_values[i] - funcs[i](**arg,**fixed_x_dict[i]),2)
     return arr
 
-
-def wrapper_for_minimization(func, variable_parameters, y_values, fixed_x_dict):
-    """"""
-
-    funccc = lambda args: np.sum(func1(args,func, variable_parameters, y_values, fixed_x_dict))
+def wrapper_for_minimization(func, variable_parameters, y_values, fixed_x_dict, list_var):
+    funccc = lambda args: np.sum(func1(args,func, variable_parameters, y_values, fixed_x_dict, list_var))
     return funccc
 
 
@@ -61,9 +75,9 @@ class MyTest(TestCase):
         new_fixed_values1 = dict(loss_db=1.2, F=1.15, p_min=0.001, pt=10000)
         minimize_args = ("wavelength", "gain_db")
 
-        wrap_result = wrap_([func,func, ], [minimize_args, minimize_args, ], y_values=[func_result, 89, ],
-                            fixed_x_dict=[new_fixed_values,new_fixed_values1, ],
-                            bounds=[[(0, 4), (20, 30)], ])
+        wrap_result = wrap_([func,func], [minimize_args, minimize_args], y_values=[func_result, 89],
+                            fixed_x_dict=[new_fixed_values,new_fixed_values1],
+                            bounds=[[(0, 4), (20, 30)], [(0.5, 4.5), (19, 29)]])
         if wrap_result is not None:
 
             func_result3 = func(**new_fixed_values, **wrap_result)
