@@ -86,6 +86,33 @@ class MyTest(TestCase):
         """
         wrap_([], [], [], [], [])
 
+    def test_wrap_3(self):
+        func1 = rpt_saushkin.real_potential_rls
+        
+        init_values_dict1 = dict(pt=20000, gain_db=20, wavelength=0.00002, loss_db=2, p_min=15000, F=1)
+        func1_result = func1(**init_values_dict1)
+        
+        func2 = rpt_saushkin.std_h
+        
+        init_values_dict2 = dict(distance=1000, elevation=2, elevation_rls=1.5, snr_db=5, tau=0.002,
+                                 aperture=7, wavelength=0.00002, width_spec=None, tau_disc_fcm=None, mode='nonmod')
+        func2_result = func2(**init_values_dict2)
 
+        new_fixed_values1 = dict(pt=20000, gain_db=20, loss_db=2, p_min=15000, F=1)
+        new_fixed_values2 = dict(distance=1000, elevation=2, elevation_rls=1.5, snr_db=5, tau=0.002, aperture=7,
+                             width_spec=None, tau_disc_fcm=None, mode='nonmod')
+        
+        minimize_args = (['wavelength'])
+
+        wrap_result = wrap_([func1, func2], [minimize_args, minimize_args], y_values=[func1_result, func2_result],
+                            fixed_x_dict=[new_fixed_values1, new_fixed_values2],
+                            bounds=[[(0.00001, 0.00006)], [(0.00003, 0.00008)]])
+        if wrap_result is not None:
+            func_result3 = func1(**new_fixed_values1, **wrap_result)
+            print("\n")
+            print(func1_result, 'res1= ', func_result3)
+            func_result4 = func2(**new_fixed_values2, **wrap_result)
+            print(func2_result, '  res2= ', func_result4)
+        print(wrap_result)
 
 
