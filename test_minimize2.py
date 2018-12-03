@@ -114,5 +114,43 @@ class MyTest(TestCase):
             func_result4 = func2(**new_fixed_values2, **wrap_result)
             print(func2_result, '  res2= ', func_result4)
         print(wrap_result)
+       
+    def test_wrap_4(self):
+        func1 = rpt_saushkin.std_x
+        init_values_dict1 = dict(distance=1000, elevation=2, elevation_rls=1.5, azimuth=2, azimuth_rls=1.6,
+                                 std_dist=1000, std_el=1.5, std_az=1)
+        func1_result = func1(**init_values_dict1)
+
+        func2 = rpt_saushkin.std_y
+        init_values_dict2 = dict(distance=1000, elevation=1.5, elevation_rls=2, azimuth=1, azimuth_rls=0.5,
+                                 std_dist=1000, std_el=2, std_az=1.5)
+        func2_result = func2(**init_values_dict2)
+
+        func3 = rpt_saushkin.std_h
+        init_values_dict3 = dict(distance=1000, elevation=2, elevation_rls=1.5, snr_db=5, tau=0.002,
+                                 aperture=7, wavelength=0.00002, width_spec=None, tau_disc_fcm=None, mode='nonmod')
+        func3_result = func3(**init_values_dict3)
+
+        new_fixed_values1 = dict(azimuth=2, azimuth_rls=1.6, std_dist=1000, std_el=2, std_az=1.5)
+        new_fixed_values2 = dict(azimuth=1, azimuth_rls=0.5, std_dist=1000, std_el=2, std_az=1.5)
+        new_fixed_values3 = dict(snr_db=5, tau=0.002, aperture=7, wavelength=0.00002, width_spec=None,
+                                 tau_disc_fcm=None, mode='nonmod')
+        minimize_args = ("distance", "elevation", "elevation_rls")
+
+        wrap_result = wrap_([func1, func2, func3], [minimize_args, minimize_args, minimize_args],
+                            y_values=[func1_result, func2_result, func3_result],
+                            fixed_x_dict=[new_fixed_values1, new_fixed_values2, new_fixed_values3],
+                            bounds=[[(1000, 2000), (0, 2), (1, 1.5)], [(1500, 3000), (1, 3), (1, 2.5)],[(1000, 4000), (0, 3), (0, 2.5)]])
+        if wrap_result is not None:
+            func_result1 = func1(**new_fixed_values1, **wrap_result)
+
+            print(func1_result, 'res1= ', func_result1)
+            func_result2 = func2(**new_fixed_values2, **wrap_result)
+
+            print(func2_result, '  res2= ', func_result2)
+            func_result3 = func3(**new_fixed_values3, **wrap_result)
+
+            print(func3_result, '  res3= ', func_result3)
+        print(wrap_result)
 
 
