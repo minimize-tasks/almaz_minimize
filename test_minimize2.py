@@ -152,5 +152,39 @@ class MyTest(TestCase):
 
             print(func3_result, '  res3= ', func_result3)
         print(wrap_result)
+        
+        def test_wrap_5(self):
+        func1 = rpt_saushkin.probability_limit
+        init_values_dict1 = dict(potential_db=20, distance=5000, rcs=1)
+        func1_result = func1(**init_values_dict1)
+
+        func2 = rpt_saushkin.probability_detect_by_antenna_param
+        init_values_dict2 = dict(potential_db=20, distance=3000, rcs=2, probability_alarm=0.8,
+                                 num_pulse=1, k=1)
+        func2_result = func2(**init_values_dict2)
+
+
+
+        new_fixed_values1 = dict( rcs=1)
+        new_fixed_values2 = dict(rcs=2, probability_alarm=0.8,
+                                 num_pulse=1, k=1)
+
+
+        minimize_args = ("potential_db", "distance")
+
+        wrap_result = wrap_([func1, func2], [minimize_args, minimize_args],
+                            y_values=[func1_result, func2_result],
+                            fixed_x_dict=[new_fixed_values1, new_fixed_values2],
+                            bounds=[[(10, 20), (10000, 20000)], [(15, 30), (5000, 10000)]])
+        if wrap_result is not None:
+            func_result1 = func1(**new_fixed_values1, **wrap_result)
+
+            print(func1_result, 'res1= ', func_result1)
+            func_result2 = func2(**new_fixed_values2, **wrap_result)
+
+            print(func2_result, '  res2= ', func_result2)
+
+        print(wrap_result)
+
 
 
