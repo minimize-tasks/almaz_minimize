@@ -153,7 +153,7 @@ class MyTest(TestCase):
             print(func3_result, '  res3= ', func_result3)
         print(wrap_result)
         
-        def test_wrap_5(self):
+    def test_wrap_5(self):
         func1 = rpt_saushkin.probability_limit
         init_values_dict1 = dict(potential_db=20, distance=5000, rcs=1)
         func1_result = func1(**init_values_dict1)
